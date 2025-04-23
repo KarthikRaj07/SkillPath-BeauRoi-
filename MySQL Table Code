@@ -1,13 +1,14 @@
 CREATE DATABASE SRS;
 USE SRS;
- 
-create table userDetail(
-id INT AUTO_INCREMENT PRIMARY KEY,
-name VARCHAR(255) NOT NULL
+
+CREATE TABLE userDetail (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
 );
 
-create table userSkills(
-id INT AUTO_INCREMENT PRIMARY KEY,
-job VARCHAR(255) NOT NULL,
-skills VARCHAR(255) NOT NULL
+CREATE TABLE userSkills (
+    id INT,
+    job VARCHAR(255) NOT NULL,
+    skills VARCHAR(255) NOT NULL,
+    FOREIGN KEY (id) REFERENCES userDetail(id)
 );

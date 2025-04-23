@@ -28,7 +28,7 @@ function UserInput({ onSubmit }) {
 
         <input
           type="text"
-          placeholder="Job Role (e.g. Data Scientist)"
+          placeholder="Job Role (e.g. Full Stack Developer)"
           className="w-full p-2 mb-4 border border-gray-300 rounded"
           value={job}
           onChange={(e) => setJob(e.target.value)}
