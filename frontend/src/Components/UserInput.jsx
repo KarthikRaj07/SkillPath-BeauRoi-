@@ -7,9 +7,22 @@ function UserInput({ onSubmit }) {
   const [job, setJob] = useState("");
   const [skills, setSkills] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit({ name, job, skills: skills.split(",").map(skill => skill.trim()) });
+    const response = await fetch("http://localhost:5000/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, job, skills: skills.split(",").map(skill => skill.trim()) }),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      onSubmit(result); // Pass the result to the parent component
+    } else {
+      console.error("Failed to submit data");
+    }
   };
 
   return (

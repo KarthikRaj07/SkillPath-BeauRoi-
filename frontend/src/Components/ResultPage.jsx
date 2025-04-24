@@ -8,7 +8,7 @@ function ResultPage({ data }) {
             Hi {name} ,
           </h2>
           <p className="text-lg mb-4">Your goal is to become a <strong>{job}</strong>.</p>
-          <p className="mb-2 font-semibold">Here's  <b>ROAD MAP</b>:</p>
+          <p className="mb-2 font-semibold">Here's your <b>ROAD MAP</b>:</p>
           <ul className="list-disc pl-5 text-gray-700">
             {skills.map((skill, index) => (
               <li key={index}>{skill}</li>
@@ -20,4 +20,3 @@ function ResultPage({ data }) {
   }
     
 export default ResultPage;
-  
