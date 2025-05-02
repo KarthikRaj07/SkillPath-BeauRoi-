@@ -19,7 +19,7 @@ function UserInput({ onSubmit }) {
 
     if (response.ok) {
       const result = await response.json();
-      onSubmit(result); // Pass the result to the parent component
+      onSubmit(result); 
     } else {
       console.error("Failed to submit data");
     }
@@ -69,4 +69,3 @@ function UserInput({ onSubmit }) {
 }
 
 export default UserInput;
-

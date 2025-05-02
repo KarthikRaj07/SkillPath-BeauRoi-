@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # Import CORS
+from flask_cors import CORS  
 from db_config import create_connection
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)  
 
 @app.route('/submit', methods=['POST'])
 def submit_data():
@@ -13,7 +13,7 @@ def submit_data():
     skills = data.get('skills')
 
     if not name or not job or not skills:
-        return jsonify({"error": "Invalid input data"}), 400  # Return 400 for bad input
+        return jsonify({"error": "Invalid input data"}), 400  
 
     skills_str = ",".join(skills)
 
@@ -28,7 +28,7 @@ def submit_data():
             print("✅ Data inserted successfully.")
             return jsonify({"name": name, "job": job, "skills": skills}), 200
         except Exception as e:
-            print(f"❌ Error inserting data: {e}")  # Log the error
+            print(f"❌ Error inserting data: {e}")  
             return jsonify({"error": "Database error", "details": str(e)}), 500
         finally:
             cursor.close()
