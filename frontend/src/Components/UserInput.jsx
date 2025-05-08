@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { useState } from "react";
+import { generateRoadmap } from "./DeepSeekClient";
 
 function UserInput({ onSubmit }) {
   const [name, setName] = useState("");
@@ -10,24 +11,23 @@ function UserInput({ onSubmit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://localhost:5000/submit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ 
-        name, 
-        current_job: currentJob, 
-        skills: skills.split(",").map(skill => skill.trim()), 
-        required_job: requiredJob 
-      }),
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      onSubmit(result); 
-    } else {
-      console.error("Failed to submit data");
+    try {
+      const roadmap = await generateRoadmap(
+        name,
+        currentJob,
+        skills.split(",").map((skill) => skill.trim()),
+        requiredJob
+      );
+      const result = {
+        name,
+        current_job: currentJob,
+        skills: skills.split(",").map((skill) => skill.trim()),
+        required_job: requiredJob,
+        roadmap,
+      };
+      onSubmit(result);
+    } catch (error) {
+      console.error("Failed to generate roadmap:", error);
     }
   };
 

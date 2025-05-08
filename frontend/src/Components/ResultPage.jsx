@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 function ResultPage({ data }) {
   return (
@@ -23,6 +23,13 @@ function ResultPage({ data }) {
               <li key={index}>{skill}</li>
             ))}
           </ul>
+          <p className="mt-6">
+            <strong>Roadmap:</strong>
+          </p>
+          <div
+            className="bg-gray-100 p-4 rounded prose"
+            dangerouslySetInnerHTML={{ __html: data.roadmap }}
+          ></div>
         </div>
       </div>
     </div>
