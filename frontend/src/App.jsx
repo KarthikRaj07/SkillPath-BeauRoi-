@@ -1,37 +1,24 @@
-import { useState } from 'react';
-import ResultPage from './Components/ResultPage';
-import UserInput from './Components/UserInput';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './Components/Header';
-import { Home } from './Components/home';
+import { HomePage } from './Components/HomePage';
+import { Roadmap } from './Components/Roadmap';
+import { Chatbot } from './Components/Chatbot';
 
 function App() {
-  const [formData, setFormData] = useState(null);
-  const [user, setUser] = useState(null); // State to store authenticated user
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication status
-
   const handleLogout = () => {
-    setUser(null);
-    setFormData(null);
-    setIsAuthenticated(false); // Reset authentication status
+    console.log('Logged out');
   };
 
   return (
-    <>
-      {!isAuthenticated ? (
-        <Home onAuthSuccess={(user) => { setUser(user); setIsAuthenticated(true); }} />
-      ) : (
-        <>
-          {user && <Header onLogout={handleLogout} />}
-          <div>
-            {formData ? (
-              <ResultPage data={formData} />
-            ) : (
-              <UserInput onSubmit={setFormData} />
-            )}
-          </div>
-        </>
-      )}
-    </>
+    <Router>
+      <Header onLogout={handleLogout} />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/roadmap" element={<Roadmap />} />
+        <Route path="/chatbot" element={<Chatbot />} />
+      </Routes>
+    </Router>
   );
 }
 
