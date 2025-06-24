@@ -12,12 +12,16 @@
   "dependencies": {
     "dompurify": "^3.2.5",
     "firebase": "^11.6.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-markdown": "^10.1.0"
+    "react-markdown": "^10.1.0",
+    "reactflow": "^11.11.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
+    "@tailwindcss/typography": "^0.5.16",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.4.1",
