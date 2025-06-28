@@ -52,7 +52,7 @@ function ResultPage({ data }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFFBDE] via-[#91C8E4] to-[#4682A9] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* User Information Card */}
         <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden">
