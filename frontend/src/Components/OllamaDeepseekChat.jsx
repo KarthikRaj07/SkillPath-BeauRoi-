@@ -21,15 +21,23 @@ function OllamaDeepseekChat() {
     setLoading(true);
 
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication required. Please log in.');
+      }
+
       const response = await fetch('http://localhost:5000/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ prompt: input })
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        throw new Error(errorData.error || errorData.msg || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();

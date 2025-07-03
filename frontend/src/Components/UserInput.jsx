@@ -15,6 +15,14 @@ function UserInput({ onSubmit }) {
     try {
       const skillsArr = skills.split(",").map((skill) => skill.trim());
       const token = localStorage.getItem('token');
+      console.log('Token:', token); // Debug log
+      const payload = {
+        name,
+        current_job: currentJob,
+        skills: skillsArr,
+        required_job: requiredJob
+      };
+      console.log('Submit payload:', payload); // Debug log
       // 1. Save user input
       const submitRes = await fetch('http://localhost:5000/submit', {
         method: 'POST',
@@ -22,14 +30,11 @@ function UserInput({ onSubmit }) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          name,
-          current_job: currentJob,
-          skills: skillsArr,
-          required_job: requiredJob
-        })
+        body: JSON.stringify(payload)
       });
+      console.log('Submit response status:', submitRes.status); // Debug log
       const submitData = await submitRes.json();
+      console.log('Submit response data:', submitData); // Debug log
       if (!submitRes.ok) throw new Error(submitData.error || 'Failed to save input');
       // 2. Generate roadmap
       const prompt = `I am currently working as a ${currentJob}, with hands-on experience in ${skillsArr.join(", ")}. I want to transition into a role as a ${requiredJob}...`;
