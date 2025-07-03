@@ -6,34 +6,67 @@ function UserInput({ onSubmit }) {
   const [skills, setSkills] = useState("");
   const [requiredJob, setRequiredJob] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
     try {
       const skillsArr = skills.split(",").map((skill) => skill.trim());
-      const prompt = `I am currently working as a ${currentJob}, with hands-on experience in ${skillsArr.join(", ")}. I want to transition into a role as a ${requiredJob}.
-\nPlease provide a detailed, actionable roadmap customized to my background that includes:\n1. *Upskilling:* What specific technical and soft skills should I focus on? Recommend relevant courses, certifications, or projects.\n2. *Portfolio Building:* What kind of projects should I add to my portfolio to attract recruiters for ${requiredJob} roles?\n3. *Networking:* What strategies or communities should I engage in to connect with professionals and recruiters in the ${requiredJob} domain?\n4. *Job Search:* Tips on how to optimize my resume and LinkedIn for this transition, and platforms where I should apply.\n\nPlease tailor this roadmap to someone coming from a ${currentJob} background and already proficient in ${skillsArr.join(", ")}. Be concise, but strategic and realistic.`;
-      const response = await fetch('http://localhost:5000/api/chat', {
+      const token = localStorage.getItem('token');
+      // 1. Save user input
+      const submitRes = await fetch('http://localhost:5000/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name,
+          current_job: currentJob,
+          skills: skillsArr,
+          required_job: requiredJob
+        })
+      });
+      const submitData = await submitRes.json();
+      if (!submitRes.ok) throw new Error(submitData.error || 'Failed to save input');
+      // 2. Generate roadmap
+      const prompt = `I am currently working as a ${currentJob}, with hands-on experience in ${skillsArr.join(", ")}. I want to transition into a role as a ${requiredJob}...`;
+      const chatRes = await fetch('http://localhost:5000/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ prompt })
       });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      const chatData = await chatRes.json();
+      if (!chatRes.ok) throw new Error(chatData.error || 'Failed to generate roadmap');
+      // 3. Save roadmap
+      const roadmapRes = await fetch('http://localhost:5000/roadmap', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ input_id: submitData.input_id, roadmap: chatData.response })
+      });
+      if (!roadmapRes.ok) {
+        const roadmapErr = await roadmapRes.json();
+        throw new Error(roadmapErr.error || 'Failed to save roadmap');
       }
-      const data = await response.json();
       const result = {
         name,
         current_job: currentJob,
         skills: skillsArr,
         required_job: requiredJob,
-        roadmap: data.response,
+        roadmap: chatData.response,
       };
       onSubmit(result);
     } catch (error) {
-      console.error("Failed to generate roadmap:", error);
+      setError(error.message);
+      console.error("Failed to generate/save roadmap:", error);
     } finally {
       setIsLoading(false);
     }
@@ -51,6 +84,7 @@ function UserInput({ onSubmit }) {
           </p>
         </div>
         <form onSubmit={handleSubmit} className="mt-8 space-y-6 bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-2xl animate-slide-up">
+          {error && <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">{error}</div>}
           <div className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-white">

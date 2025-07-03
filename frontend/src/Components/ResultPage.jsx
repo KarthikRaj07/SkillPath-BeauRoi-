@@ -3,6 +3,19 @@ import ReactMarkdown from "react-markdown";
 import { jsPDF } from "jspdf";
 
 function ResultPage({ data }) {
+  // Check for JWT
+  const token = localStorage.getItem('token');
+  if (!token) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FFFBDE] via-[#91C8E4] to-[#4682A9]">
+        <div className="bg-white/90 p-8 rounded-2xl shadow-xl text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Not Authenticated</h2>
+          <p className="text-gray-700">Please log in to view your roadmap.</p>
+        </div>
+      </div>
+    );
+  }
+
   const handleDownload = () => {
     // Create a new PDF document
     const doc = new jsPDF();

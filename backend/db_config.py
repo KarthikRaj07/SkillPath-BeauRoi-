@@ -7,7 +7,7 @@ def create_connection():
             host='localhost',          # or your DB server
             user='root',    # replace with your MySQL username
             password='1212',# replace with your MySQL password
-            database='SRS',   # replace with your DB name
+            database='SkillPath',   # replace with your DB name
             auth_plugin='mysql_native_password'
         )
         if connection.is_connected():
