@@ -1,5 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 
+const QUICK_REPLIES = [
+  "How can I transition to a new career?",
+  "What skills should I learn for tech jobs?",
+  "Help me prepare for interviews",
+  "How do I build my professional network?",
+  "What's the best way to update my resume?"
+];
+
 function OllamaDeepseekChat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -15,8 +23,12 @@ function OllamaDeepseekChat() {
     e.preventDefault();
     if (!input.trim()) return;
 
+    await sendMessage(input);
+  };
+
+  const sendMessage = async (messageText) => {
     setError(null);
-    setMessages(prev => [...prev, { text: input, sender: 'user' }]);
+    setMessages(prev => [...prev, { text: messageText, sender: 'user' }]);
     setInput('');
     setLoading(true);
 
@@ -60,8 +72,8 @@ function OllamaDeepseekChat() {
           </svg>
         </div>
         <div>
-          <h1 className="text-xl font-extrabold text-blue-900 tracking-tight">SkillPath Chat</h1>
-          <p className="text-xs text-blue-700 font-medium">Powered by Deepseek-Coder</p>
+          <h1 className="text-xl font-extrabold text-blue-900 tracking-tight">SkillPath AI Assistant</h1>
+          <p className="text-xs text-blue-700 font-medium">Powered by Mistral - Your Career Development Partner</p>
         </div>
       </header>
       {/* Error */}
@@ -72,7 +84,36 @@ function OllamaDeepseekChat() {
       <main className="flex-1 overflow-y-auto px-2 sm:px-0 py-4 flex flex-col gap-2">
         <div className="max-w-2xl w-full mx-auto flex flex-col gap-3">
           {messages.length === 0 && (
-            <div className="text-center text-blue-400 mt-16">Start the conversation with <span className="font-semibold text-blue-600">SkillPath AI</span>!</div>
+            <div className="text-center text-blue-400 mt-16">
+              <div className="mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                  <svg className="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+              </div>
+              <p className="text-lg font-semibold text-blue-600 mb-2">Welcome to SkillPath AI!</p>
+              <p className="text-sm text-blue-500 mb-4">I'm here to help you with your career development journey.</p>
+              <div className="text-xs text-blue-400 space-y-1 mb-6">
+                <p>💼 Ask about career transitions</p>
+                <p>📚 Get skill development advice</p>
+                <p>🎯 Plan your professional goals</p>
+                <p>💡 Get interview tips and strategies</p>
+              </div>
+              
+              {/* Quick Reply Buttons */}
+              <div className="flex flex-wrap justify-center gap-2">
+                {QUICK_REPLIES.map((reply, index) => (
+                  <button
+                    key={index}
+                    onClick={() => sendMessage(reply)}
+                    className="px-3 py-2 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors duration-200 border border-blue-200"
+                  >
+                    {reply}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
           {messages.map((message, index) => (
             <div
@@ -90,7 +131,20 @@ function OllamaDeepseekChat() {
               </div>
             </div>
           ))}
-          {loading && <div className="text-center text-blue-400">SkillPath AI is thinking...</div>}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="px-5 py-3 rounded-2xl bg-white text-blue-900 border border-blue-100 shadow-md">
+                <div className="flex items-center space-x-2">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  </div>
+                  <span className="text-sm text-blue-600">SkillPath AI is thinking...</span>
+                </div>
+              </div>
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
       </main>
