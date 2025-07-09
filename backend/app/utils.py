@@ -35,3 +35,4 @@ def skills_to_string(skills_list):
 def string_to_skills(skills_string):
     """Convert comma-separated string to skills list"""
     return skills_string.split(",") if skills_string else []
+

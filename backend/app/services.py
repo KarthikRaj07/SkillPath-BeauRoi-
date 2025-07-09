@@ -72,11 +72,14 @@ class OllamaService:
     def run_ollama(prompt):
         """Run Ollama with the given prompt"""
         try:
-            # Check if this is a first message or greeting
-            first_message_keywords = ['hello', 'hi', 'hey', 'start', 'begin', 'first']
-            is_first_message = any(keyword in prompt.lower() for keyword in first_message_keywords)
+            # Check if this is a simple greeting (not a question about careers)
+            simple_greetings = ['hello', 'hi', 'hey']
+            is_simple_greeting = any(greeting == prompt.lower().strip() for greeting in simple_greetings)
             
-            if is_first_message:
+            print(f"Prompt: '{prompt}'")
+            print(f"Is simple greeting: {is_simple_greeting}")
+            
+            if is_simple_greeting:
                 return """Hello! I'm SkillPath AI, your career development assistant. I'm here to help you with your professional goals and career journey.
 
 I can assist you with:
@@ -107,15 +110,16 @@ CRITICAL INSTRUCTIONS:
 - NEVER mention cats, pets, or unrelated topics
 - ALWAYS focus on career and professional development
 - If the user asks about anything unrelated to careers, gently redirect them to career topics
-- Provide specific, actionable career advice"""
+- Provide specific, actionable career advice
+- Give detailed, personalized responses based on the user's specific question
+- Avoid generic or template responses"""
             
             # Create a more structured prompt to prevent generic responses
             full_prompt = f"""<|system|>
 {system_prompt}
 <|user|>
 {prompt}
-<|assistant|>
-I'm SkillPath AI, your career development assistant. Let me help you with your professional goals."""
+<|assistant|>"""
             
             payload = {
                 "model": Config.OLLAMA_MODEL,
@@ -123,16 +127,20 @@ I'm SkillPath AI, your career development assistant. Let me help you with your p
                 "stream": False
             }
             print(f"Sending request to Ollama: {Config.OLLAMA_URL}")
+            print(f"Payload: {payload}")
             response = requests.post(Config.OLLAMA_URL, json=payload, timeout=Config.OLLAMA_TIMEOUT)
             print(f"Ollama response status: {response.status_code}")
+            print(f"Ollama response headers: {response.headers}")
             response.raise_for_status()
             data = response.json()
             print(f"Ollama response data: {data}")
-            return data.get("response", "No response from Mistral"), None
+            response_text = data.get("response", "No response from Mistral")
+            print(f"Extracted response: {response_text[:100]}...")
+            return response_text, None
         except requests.exceptions.ConnectionError:
             # Fallback response when Ollama is not available
             print("Ollama not available, using fallback response")
-            fallback_response = f"""Hello! I'm SkillPath AI, your career development assistant. I'm here to help you with your career goals and provide guidance on skill development, job transitions, and professional growth.
+            fallback_response = """Hello! I'm SkillPath AI, your career development assistant. I'm here to help you with your career goals and provide guidance on skill development, job transitions, and professional growth.
 
 I can help you with:
 - Career advice and guidance
@@ -145,7 +153,8 @@ What would you like to discuss today? Feel free to ask me anything about your ca
             return fallback_response, None
         except Exception as e:
             error_msg = f"Error running Ollama: {str(e)}"
-            print(error_msg)
+            print(f"Exception type: {type(e)}")
+            print(f"Exception details: {error_msg}")
             return None, error_msg
     
     @staticmethod
@@ -165,14 +174,23 @@ class ChatService:
         if not prompt:
             return None, "No prompt provided"
         
+        print(f"Processing chat for user_id: {user_id}, prompt: {prompt[:50]}...")
+        
         # Get response from Ollama
         response, error = OllamaService.run_ollama(prompt)
         if error:
+            print(f"Error getting Ollama response: {error}")
             return None, error
         
+        print(f"Got response from Ollama: {response[:100]}...")
+        
         # Save chat log
+        print(f"Attempting to save chat log for user_id: {user_id}")
         chat_id, save_error = ChatLog.create(user_id, prompt, response)
         if save_error:
-            print(f"Warning: Failed to save chat log: {save_error}")
+            print(f"❌ Failed to save chat log: {save_error}")
+            print(f"User ID: {user_id}, Prompt length: {len(prompt)}, Response length: {len(response)}")
+        else:
+            print(f"✅ Chat log saved successfully with ID: {chat_id}")
         
         return response, None

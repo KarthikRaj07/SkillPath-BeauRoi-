@@ -1,6 +1,7 @@
 from flask import request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
 from app.services import AuthService, UserInputService, RoadmapService, ChatService, OllamaService
+from app.models import ChatLog
 
 def init_routes(app, jwt):
     """Initialize all routes for the application"""
@@ -124,3 +125,21 @@ def init_routes(app, jwt):
             }), 200
         except Exception as e:
             return jsonify({'error': str(e), 'status': 'Ollama test failed'}), 500
+
+    # Chat logs route
+    @app.route('/api/chat-logs', methods=['GET'])
+    @jwt_required()
+    def get_chat_logs():
+        """Get chat logs for the authenticated user"""
+        try:
+            user_id = get_jwt_identity()
+            user_id = int(user_id) if user_id else None
+            
+            chat_logs, error = ChatLog.get_by_user_id(user_id)
+            if error:
+                return jsonify({'error': error}), 500
+            
+            return jsonify({'chat_logs': chat_logs}), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+

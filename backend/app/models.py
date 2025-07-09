@@ -124,18 +124,47 @@ class ChatLog:
     @staticmethod
     def create(user_id, question, answer):
         """Create a new chat log entry"""
+        print(f"ChatLog.create called with user_id: {user_id}, question length: {len(question)}, answer length: {len(answer)}")
+        
         conn = create_connection()
         if not conn:
+            print("❌ Database connection failed in ChatLog.create")
             return None, "Database connection failed"
         
         cursor = conn.cursor()
         try:
             query = "INSERT INTO chat_logs (user_id, question, answer) VALUES (%s, %s, %s)"
+            print(f"Executing query: {query}")
+            print(f"Parameters: user_id={user_id}, question={question[:50]}..., answer={answer[:50]}...")
+            
             cursor.execute(query, (user_id, question, answer))
             conn.commit()
-            return cursor.lastrowid, None
+            chat_id = cursor.lastrowid
+            print(f"✅ Chat log inserted with ID: {chat_id}")
+            return chat_id, None
+        except Exception as e:
+            print(f"❌ Exception in ChatLog.create: {type(e).__name__}: {str(e)}")
+            return None, str(e)
+        finally:
+            cursor.close()
+            conn.close()
+    
+    @staticmethod
+    def get_by_user_id(user_id, limit=50):
+        """Get chat logs for a specific user"""
+        conn = create_connection()
+        if not conn:
+            return None, "Database connection failed"
+        
+        cursor = conn.cursor(dictionary=True)
+        try:
+            query = "SELECT * FROM chat_logs WHERE user_id = %s ORDER BY timestamp DESC LIMIT %s"
+            cursor.execute(query, (user_id, limit))
+            chat_logs = cursor.fetchall()
+            return chat_logs, None
         except Exception as e:
             return None, str(e)
         finally:
             cursor.close()
             conn.close()
+

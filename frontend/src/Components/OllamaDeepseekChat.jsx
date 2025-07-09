@@ -44,7 +44,7 @@ function OllamaDeepseekChat() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ prompt: input })
+        body: JSON.stringify({ prompt: messageText })
       });
 
       if (!response.ok) {
