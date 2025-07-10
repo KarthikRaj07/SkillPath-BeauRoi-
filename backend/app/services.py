@@ -33,12 +33,12 @@ class UserInputService:
     """User input service"""
     
     @staticmethod
-    def submit_user_data(user_id, name, current_job, skills, required_job):
+    def submit_user_data(user_id, name, current_job, skills, required_job, userPrompt):
         """Submit user input data"""
         if not name or not current_job or not skills or not required_job:
             return None, "Invalid input data"
         
-        input_id, error = UserInput.create(user_id, name, current_job, required_job, skills)
+        input_id, error = UserInput.create(user_id, name, current_job, required_job, skills, userPrompt)
         if error:
             return None, error
         
@@ -47,7 +47,8 @@ class UserInputService:
             "name": name,
             "current_job": current_job,
             "skills": skills,
-            "required_job": required_job
+            "required_job": required_job,
+            "userPrompt": userPrompt
         }, None
 
 class RoadmapService:
@@ -138,19 +139,9 @@ CRITICAL INSTRUCTIONS:
             print(f"Extracted response: {response_text[:100]}...")
             return response_text, None
         except requests.exceptions.ConnectionError:
-            # Fallback response when Ollama is not available
-            print("Ollama not available, using fallback response")
-            fallback_response = """Hello! I'm SkillPath AI, your career development assistant. I'm here to help you with your career goals and provide guidance on skill development, job transitions, and professional growth.
-
-I can help you with:
-- Career advice and guidance
-- Skill development recommendations
-- Job transition strategies
-- Interview preparation tips
-- Professional development planning
-
-What would you like to discuss today? Feel free to ask me anything about your career journey!"""
-            return fallback_response, None
+            # Ollama not available, return error instead of fallback response
+            print("Ollama not available, returning error")
+            return None, "Ollama service is not available. Please try again later."
         except Exception as e:
             error_msg = f"Error running Ollama: {str(e)}"
             print(f"Exception type: {type(e)}")

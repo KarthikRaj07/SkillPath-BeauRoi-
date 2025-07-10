@@ -60,13 +60,14 @@ def init_routes(app, jwt):
         current_job = data.get('current_job')
         skills = data.get('skills')
         required_job = data.get('required_job')
+        userPrompt = data.get('userPrompt', '')
         user_id = get_jwt_identity()
         # Convert string user_id back to int for database
         user_id = int(user_id) if user_id else None
         
-        print('Parsed data:', {'name': name, 'current_job': current_job, 'skills': skills, 'required_job': required_job, 'user_id': user_id})
+        print('Parsed data:', {'name': name, 'current_job': current_job, 'skills': skills, 'required_job': required_job, 'userPrompt': userPrompt, 'user_id': user_id})
         
-        result, error = UserInputService.submit_user_data(user_id, name, current_job, skills, required_job)
+        result, error = UserInputService.submit_user_data(user_id, name, current_job, skills, required_job, userPrompt)
         if error:
             return jsonify({"error": error}), 400
         

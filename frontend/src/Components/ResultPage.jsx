@@ -40,16 +40,26 @@ function ResultPage({ data }) {
     const splitSkills = doc.splitTextToSize(skillsText, 170);
     doc.text(splitSkills, 20, 80);
     
+    // Add user prompt if it exists
+    let yPosition = 90;
+    if (data.userPrompt && data.userPrompt.trim()) {
+      doc.text("Additional Requirements:", 20, yPosition);
+      yPosition += 10;
+      const promptLines = doc.splitTextToSize(data.userPrompt, 170);
+      doc.text(promptLines, 20, yPosition);
+      yPosition += (promptLines.length * 7) + 10;
+    }
+    
     // Add roadmap
     doc.setFont("helvetica", "bold");
-    doc.text("Personalized Roadmap:", 20, 100);
+    doc.text("Personalized Roadmap:", 20, yPosition);
     doc.setFont("helvetica", "normal");
+    yPosition += 10;
     
     // Split the roadmap text into lines that fit the page width
     const roadmapLines = doc.splitTextToSize(data.roadmap, 170);
     
     // Add each line of the roadmap
-    let yPosition = 110;
     roadmapLines.forEach((line) => {
       if (yPosition > 270) {
         // Add a new page if we're running out of space
@@ -115,6 +125,16 @@ function ResultPage({ data }) {
                 </div>
               </div>
             </div>
+            
+            {/* Additional Requirements Section */}
+            {data.userPrompt && data.userPrompt.trim() && (
+              <div className="mt-6 pt-6 border-t border-blue-100">
+                <h3 className="text-sm font-medium text-blue-700 mb-2">Additional Requirements</h3>
+                <p className="text-lg text-blue-900 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  {data.userPrompt}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

@@ -56,7 +56,7 @@ class UserInput:
     """UserInput model for database operations"""
     
     @staticmethod
-    def create(user_id, name, current_job, required_job, skills):
+    def create(user_id, name, current_job, required_job, skills, userPrompt):
         """Create a new user input"""
         conn = create_connection()
         if not conn:
@@ -65,8 +65,8 @@ class UserInput:
         cursor = conn.cursor()
         try:
             skills_str = skills_to_string(skills)
-            query = "INSERT INTO user_inputs (user_id, name, current_job, required_job, skills) VALUES (%s, %s, %s, %s, %s)"
-            cursor.execute(query, (user_id, name, current_job, required_job, skills_str))
+            query = "INSERT INTO user_inputs (user_id, name, current_job, required_job, skills, userPrompt) VALUES (%s, %s, %s, %s, %s, %s)"
+            cursor.execute(query, (user_id, name, current_job, required_job, skills_str, userPrompt))
             input_id = cursor.lastrowid
             conn.commit()
             return input_id, None

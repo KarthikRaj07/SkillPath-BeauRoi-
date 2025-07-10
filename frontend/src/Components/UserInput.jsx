@@ -5,6 +5,7 @@ function UserInput({ onSubmit }) {
   const [currentJob, setCurrentJob] = useState("");
   const [skills, setSkills] = useState("");
   const [requiredJob, setRequiredJob] = useState("");
+  const [userPrompt, setUserPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -20,7 +21,8 @@ function UserInput({ onSubmit }) {
         name,
         current_job: currentJob,
         skills: skillsArr,
-        required_job: requiredJob
+        required_job: requiredJob,
+        userPrompt: userPrompt
       };
       console.log('Submit payload:', payload); // Debug log
       // 1. Save user input
@@ -37,7 +39,7 @@ function UserInput({ onSubmit }) {
       console.log('Submit response data:', submitData); // Debug log
       if (!submitRes.ok) throw new Error(submitData.error || 'Failed to save input');
       // 2. Generate roadmap
-      const prompt = `I am currently working as a ${currentJob}, with hands-on experience in ${skillsArr.join(", ")}. I want to transition into a role as a ${requiredJob}...`;
+      const prompt = `I am currently working as a ${currentJob}, and I have experience in ${skillsArr.join(", ")}. I aim to transition into a role as a ${requiredJob}. ${userPrompt}. Generate detailed roadmap to help me achieve this career goal by Skill development recommendations.`;
       const chatRes = await fetch('http://localhost:5000/api/chat', {
         method: 'POST',
         headers: {
@@ -66,6 +68,7 @@ function UserInput({ onSubmit }) {
         current_job: currentJob,
         skills: skillsArr,
         required_job: requiredJob,
+        userPrompt: userPrompt,
         roadmap: chatData.response,
       };
       onSubmit(result);
@@ -148,6 +151,20 @@ function UserInput({ onSubmit }) {
                 placeholder="Senior Software Engineer"
                 value={requiredJob}
                 onChange={(e) => setRequiredJob(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="userPrompt" className="block text-sm font-medium text-blue-900">
+                Additional Requirements (Optional)
+              </label>
+              <textarea
+                id="userPrompt"
+                rows="3"
+                className="mt-1 block w-full px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-900 placeholder-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-none"
+                placeholder="Any specific requirements, preferences, or additional context for your career transition..."
+                value={userPrompt}
+                onChange={(e) => setUserPrompt(e.target.value)}
               />
             </div>
           </div>
