@@ -1,0 +1,56 @@
+.ml-roadmap-container {
+  max-width: 700px;
+  width: 100%;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 2rem 0.5rem;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.ml-roadmap-container h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #1976d2;
+}
+
+.ml-roadmap-tree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+  padding-bottom: 2rem;
+}
+
+.ml-node {
+  background: #e3f2fd;
+  color: #333;
+  border: 2px solid #1976d2;
+  border-radius: 8px;
+  padding: 1em 1.5em;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 1em 0;
+  min-width: 120px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(25,118,210,0.05);
+  transition: background 0.2s, color 0.2s;
+}
+
+.ml-node.root {
+  background: #1976d2;
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: bold;
+  border: 2px solid #0d47a1;
+}
+
+.ml-node:hover {
+  background: #bbdefb;
+  color: #0d47a1;
+}

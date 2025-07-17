@@ -5,7 +5,6 @@ import { HomePage } from './Components/HomePage';
 import RoadmapList from './Components/Roadmap/RoadmapList';
 import Home from './Components/Home';
 import DSA_Roadmap from './Components/Roadmap/DSA_roadmap';
-import FSD_roadmap from './Components/Roadmap/FSD_roadmap';
 import OllamaDeepseekChat from './Components/OllamaDeepseekChat';
 import MLRoadmap from './Components/Roadmap/ML_roadmap';
 import LoginPage from './Components/LoginPage';
@@ -59,8 +58,7 @@ function AppRoutes({ user, setUser }) {
         <Route path="/" element={<HomePage />} />
         <Route path="/roadmap" element={<RoadmapList />} />
         <Route path="/chatbot" element={<OllamaDeepseekChat />} />
-        <Route path="/second" element={<DSA_Roadmap />} />
-        <Route path="/fsd" element={<FSD_roadmap />} />
+        <Route path="/dsa" element={<DSA_Roadmap />} />
         <Route path="/ml" element={<MLRoadmap />} />
       </Routes>
     </>
