@@ -16,7 +16,7 @@ class Config:
     # Ollama configuration
     OLLAMA_URL = "http://localhost:11434/api/generate"
     OLLAMA_MODEL = "mistral:latest"  # Changed to Mistral for conversational chat
-    OLLAMA_TIMEOUT = 80
+    OLLAMA_TIMEOUT = 8000
     
     # CORS configuration
     CORS_ORIGINS = "*"

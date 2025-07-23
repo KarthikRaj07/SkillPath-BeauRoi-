@@ -1,10 +1,22 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import { jsPDF } from "jspdf";
 
 function ResultPage({ data }) {
-  // Check for JWT
-  const token = localStorage.getItem('token');
+  const points = data.roadmap.split(/\n[0-9]+\.\s/).filter(Boolean);
+const filtered = useMemo(() => points.slice(1), [points]); // Remove the first point
+
+  const [openIndexes, setOpenIndexes] = useState({});
+  const [isVisual, setIsVisual] = useState(false);
+
+  const toggleBox = (index) => {
+    setOpenIndexes((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
+
+  const token = localStorage.getItem("token");
   if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-blue-100">
@@ -17,62 +29,89 @@ function ResultPage({ data }) {
   }
 
   const handleDownload = () => {
-    // Create a new PDF document
     const doc = new jsPDF();
-    
-    // Set font styles
     doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
-    
-    // Add title
     doc.text("Career Roadmap", 20, 20);
-    
-    // Add user information
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
     doc.text(`Name: ${data.name}`, 20, 40);
     doc.text(`Current Position: ${data.current_job}`, 20, 50);
     doc.text(`Target Position: ${data.required_job}`, 20, 60);
-    
-    // Add skills
     doc.text("Current Skills:", 20, 70);
     const skillsText = data.skills.join(", ");
     const splitSkills = doc.splitTextToSize(skillsText, 170);
     doc.text(splitSkills, 20, 80);
-    
-    // Add user prompt if it exists
     let yPosition = 90;
     if (data.userPrompt && data.userPrompt.trim()) {
       doc.text("Additional Requirements:", 20, yPosition);
       yPosition += 10;
       const promptLines = doc.splitTextToSize(data.userPrompt, 170);
       doc.text(promptLines, 20, yPosition);
-      yPosition += (promptLines.length * 7) + 10;
+      yPosition += promptLines.length * 7 + 10;
     }
-    
-    // Add roadmap
     doc.setFont("helvetica", "bold");
     doc.text("Personalized Roadmap:", 20, yPosition);
     doc.setFont("helvetica", "normal");
     yPosition += 10;
-    
-    // Split the roadmap text into lines that fit the page width
     const roadmapLines = doc.splitTextToSize(data.roadmap, 170);
-    
-    // Add each line of the roadmap
     roadmapLines.forEach((line) => {
       if (yPosition > 270) {
-        // Add a new page if we're running out of space
         doc.addPage();
         yPosition = 20;
       }
       doc.text(line, 20, yPosition);
       yPosition += 7;
     });
-    
-    // Save the PDF
-    doc.save(`career-roadmap-${data.name.toLowerCase().replace(/\s+/g, '-')}.pdf`);
+    doc.save(`career-roadmap-${data.name.toLowerCase().replace(/\s+/g, "-")}.pdf`);
   };
+
+  const renderVisualRoadmap = () => {
+  return (
+    <div className="flex flex-col items-center space-y-4">
+      {filtered.map((point, index) => {
+        const lines = point.trim().split("\n");
+        const titleLine = lines[0].trim();
+
+        const titleMatch = titleLine.match(/\*\*(.*?)\*\*/);
+        const title = titleMatch ? titleMatch[1] : titleLine;
+
+        const descLines = [...lines];
+        if (titleMatch) {
+          descLines.shift(); // remove the title line
+        }
+        const description = descLines.join("\n").trim();
+
+        const handleToggle = () => toggleBox(index);
+
+        return (
+          <div key={index} className="w-full">
+            <div
+              onClick={handleToggle}
+              className="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm cursor-pointer transition-all hover:shadow-md"
+            >
+              <h3 className="font-semibold text-lg text-center">{title}</h3>
+
+              {/* Description shown only when toggled */}
+              {openIndexes[index] && description && (
+                <div className="mt-2 text-sm text-gray-700">
+                  <ReactMarkdown>{description}</ReactMarkdown>
+                </div>
+              )}
+            </div>
+
+            {/* Arrow shown between boxes */}
+            {index !== filtered.length - 1 && (
+              <div className="flex justify-center my-4">
+                <span className="text-3xl text-blue-400 animate-bounce">↓</span>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
   return (
     <div className="min-h-screen bg-blue-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -81,15 +120,18 @@ function ResultPage({ data }) {
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="px-6 py-8">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-bold text-blue-900">
-                Your Career Roadmap
-              </h2>
+              <h2 className="text-3xl font-bold text-blue-900">Your Career Roadmap</h2>
               <button
                 onClick={handleDownload}
                 className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] flex items-center space-x-2"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                  />
                 </svg>
                 <span>Download PDF</span>
               </button>
@@ -125,8 +167,8 @@ function ResultPage({ data }) {
                 </div>
               </div>
             </div>
-            
-            {/* Additional Requirements Section */}
+
+            {/* Additional Requirements */}
             {data.userPrompt && data.userPrompt.trim() && (
               <div className="mt-6 pt-6 border-t border-blue-100">
                 <h3 className="text-sm font-medium text-blue-700 mb-2">Additional Requirements</h3>
@@ -138,12 +180,23 @@ function ResultPage({ data }) {
           </div>
         </div>
 
-        {/* Roadmap Card */}
+        {/* Roadmap Section with Toggle */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="px-6 py-8">
-            <h3 className="text-2xl font-bold text-blue-900 mb-6">Your Personalized Roadmap</h3>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-blue-900">Your Personalized Roadmap</h3>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <span className="text-sm text-blue-800 font-medium">Visual View</span>
+                <input
+                  type="checkbox"
+                  className="toggle toggle-sm bg-blue-300"
+                  checked={isVisual}
+                  onChange={() => setIsVisual(!isVisual)}
+                />
+              </label>
+            </div>
             <div className="prose max-w-none text-blue-900">
-              <ReactMarkdown>{data.roadmap}</ReactMarkdown>
+              {isVisual ? renderVisualRoadmap() : <ReactMarkdown>{data.roadmap}</ReactMarkdown>}
             </div>
           </div>
         </div>
