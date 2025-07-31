@@ -8,7 +8,7 @@ const filtered = useMemo(() => points.slice(1), [points]); // Remove the first p
 
   const [openIndexes, setOpenIndexes] = useState({});
   const [isVisual, setIsVisual] = useState(false);
-  const VisualRoadmapBox = ({ point, index, isOpen, toggleBox }) => {
+const VisualRoadmapBox = ({ point, index, isOpen, toggleBox }) => {
   const lines = point.trim().split("\n");
   const titleLine = lines[0].trim();
   const titleMatch = titleLine.match(/\*\*(.*?)\*\*/);
@@ -18,6 +18,10 @@ const filtered = useMemo(() => points.slice(1), [points]); // Remove the first p
   if (titleMatch) descLines.shift(); // remove title from description
   const description = descLines.join("\n").trim();
 
+  // The description corresponds to the point with the matching heading (title)
+  // The toggleBox is called with index, which matches the point index in the roadmap array
+  // So the description shown is always the one matching the clicked heading
+
   return (
     <div key={index} className="w-full">
       <div
@@ -25,13 +29,14 @@ const filtered = useMemo(() => points.slice(1), [points]); // Remove the first p
         className="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm cursor-pointer transition-all hover:shadow-md"
       >
         <h3 className="font-semibold text-lg text-center">{title}</h3>
-
-        {isOpen && description && (
-          <div className="mt-2 text-sm text-gray-700">
-            <ReactMarkdown>{description}</ReactMarkdown>
-          </div>
-        )}
       </div>
+
+      {/* Show description only when node is clicked */}
+      {isOpen && description && (
+        <div className="mt-2 ml-4 p-4 bg-blue-50 rounded-lg border border-blue-200 text-sm text-gray-700 shadow-inner">
+          <ReactMarkdown>{description}</ReactMarkdown>
+        </div>
+      )}
 
       {/* Arrow between cards */}
       <div className="flex justify-center my-4">
