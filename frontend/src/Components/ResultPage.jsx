@@ -8,6 +8,39 @@ const filtered = useMemo(() => points.slice(1), [points]); // Remove the first p
 
   const [openIndexes, setOpenIndexes] = useState({});
   const [isVisual, setIsVisual] = useState(false);
+  const VisualRoadmapBox = ({ point, index, isOpen, toggleBox }) => {
+  const lines = point.trim().split("\n");
+  const titleLine = lines[0].trim();
+  const titleMatch = titleLine.match(/\*\*(.*?)\*\*/);
+  const title = titleMatch ? titleMatch[1] : titleLine;
+
+  const descLines = [...lines];
+  if (titleMatch) descLines.shift(); // remove title from description
+  const description = descLines.join("\n").trim();
+
+  return (
+    <div key={index} className="w-full">
+      <div
+        onClick={() => toggleBox(index)}
+        className="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm cursor-pointer transition-all hover:shadow-md"
+      >
+        <h3 className="font-semibold text-lg text-center">{title}</h3>
+
+        {isOpen && description && (
+          <div className="mt-2 text-sm text-gray-700">
+            <ReactMarkdown>{description}</ReactMarkdown>
+          </div>
+        )}
+      </div>
+
+      {/* Arrow between cards */}
+      <div className="flex justify-center my-4">
+        <span className="text-3xl text-blue-400 animate-bounce">↓</span>
+      </div>
+    </div>
+  );
+};
+
 
   const toggleBox = (index) => {
     setOpenIndexes((prev) => ({
@@ -66,52 +99,25 @@ const filtered = useMemo(() => points.slice(1), [points]); // Remove the first p
     doc.save(`career-roadmap-${data.name.toLowerCase().replace(/\s+/g, "-")}.pdf`);
   };
 
-  const renderVisualRoadmap = () => {
+const renderVisualRoadmap = () => {
   return (
     <div className="flex flex-col items-center space-y-4">
-      {filtered.map((point, index) => {
-        const lines = point.trim().split("\n");
-        const titleLine = lines[0].trim();
-
-        const titleMatch = titleLine.match(/\*\*(.*?)\*\*/);
-        const title = titleMatch ? titleMatch[1] : titleLine;
-
-        const descLines = [...lines];
-        if (titleMatch) {
-          descLines.shift(); // remove the title line
-        }
-        const description = descLines.join("\n").trim();
-
-        const handleToggle = () => toggleBox(index);
-
+      {filtered.map((point, i) => {
+        const originalIndex = i + 1; // match index to original points array
         return (
-          <div key={index} className="w-full">
-            <div
-              onClick={handleToggle}
-              className="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm cursor-pointer transition-all hover:shadow-md"
-            >
-              <h3 className="font-semibold text-lg text-center">{title}</h3>
-
-              {/* Description shown only when toggled */}
-              {openIndexes[index] && description && (
-                <div className="mt-2 text-sm text-gray-700">
-                  <ReactMarkdown>{description}</ReactMarkdown>
-                </div>
-              )}
-            </div>
-
-            {/* Arrow shown between boxes */}
-            {index !== filtered.length - 1 && (
-              <div className="flex justify-center my-4">
-                <span className="text-3xl text-blue-400 animate-bounce">↓</span>
-              </div>
-            )}
-          </div>
+          <VisualRoadmapBox
+            key={i}
+            point={point}
+            index={originalIndex}
+            isOpen={openIndexes[originalIndex]}
+            toggleBox={toggleBox}
+          />
         );
       })}
     </div>
   );
 };
+
 
   return (
     <div className="min-h-screen bg-blue-100 py-12 px-4 sm:px-6 lg:px-8">
