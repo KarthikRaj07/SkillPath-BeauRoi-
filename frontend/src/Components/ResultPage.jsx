@@ -1,6 +1,9 @@
-import  { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import { jsPDF } from "jspdf";
+import MarkmapViewer from "../components/MarkmapViewer";
+import { convertToMarkdown } from "../utils/convertToMarkdown";
+
 
 function ResultPage({ data }) {
   const points = data.roadmap.split(/\n[0-9]+\.\s/).filter(Boolean);
@@ -8,6 +11,7 @@ const filtered = useMemo(() => points.slice(1), [points]); // Remove the first p
 
   const [openIndexes, setOpenIndexes] = useState({});
   const [isVisual, setIsVisual] = useState(false);
+  const [viewMode, setViewMode] = useState("text"); // 'text', 'visual', 'markmap'
 const VisualRoadmapBox = ({ point, index, isOpen, toggleBox }) => {
   const lines = point.trim().split("\n");
   const titleLine = lines[0].trim();
@@ -18,29 +22,30 @@ const VisualRoadmapBox = ({ point, index, isOpen, toggleBox }) => {
   if (titleMatch) descLines.shift(); // remove title from description
   const description = descLines.join("\n").trim();
 
-  // The description corresponds to the point with the matching heading (title)
-  // The toggleBox is called with index, which matches the point index in the roadmap array
-  // So the description shown is always the one matching the clicked heading
+  // Custom styles for visual roadmap nodes and description
+  // Revert node font size to initial, keep styling for description text
+  const nodeStyle = "bg-blue-100 text-blue-900 text-lg font-semibold p-6 rounded-xl border border-blue-300 shadow-md cursor-pointer hover:bg-blue-200 transition-all";
+  const descriptionStyle = "mt-3 ml-6 p-5 bg-blue-50 rounded-lg border border-blue-200 text-base text-blue-800 shadow-inner";
 
   return (
     <div key={index} className="w-full">
       <div
         onClick={() => toggleBox(index)}
-        className="bg-blue-50 p-4 rounded-xl border border-blue-200 shadow-sm cursor-pointer transition-all hover:shadow-md"
+        className={nodeStyle}
       >
-        <h3 className="font-semibold text-lg text-center">{title}</h3>
+        <h3 className="text-center">{title}</h3>
       </div>
 
       {/* Show description only when node is clicked */}
       {isOpen && description && (
-        <div className="mt-2 ml-4 p-4 bg-blue-50 rounded-lg border border-blue-200 text-sm text-gray-700 shadow-inner">
+        <div className={descriptionStyle}>
           <ReactMarkdown>{description}</ReactMarkdown>
         </div>
       )}
 
       {/* Arrow between cards */}
       <div className="flex justify-center my-4">
-        <span className="text-3xl text-blue-400 animate-bounce">↓</span>
+        <span className="text-3xl text-blue-500 animate-bounce">↓</span>
       </div>
     </div>
   );
@@ -48,10 +53,14 @@ const VisualRoadmapBox = ({ point, index, isOpen, toggleBox }) => {
 
 
   const toggleBox = (index) => {
-    setOpenIndexes((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
+    // Fix toggle to allow only one open at a time
+    setOpenIndexes((prev) => {
+      const newState = {};
+      if (!prev[index]) {
+        newState[index] = true;
+      }
+      return newState;
+    });
   };
 
   const token = localStorage.getItem("token");
@@ -196,18 +205,46 @@ const renderVisualRoadmap = () => {
           <div className="px-6 py-8">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold text-blue-900">Your Personalized Roadmap</h3>
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <span className="text-sm text-blue-800 font-medium">Visual View</span>
-                <input
-                  type="checkbox"
-                  className="toggle toggle-sm bg-blue-300"
-                  checked={isVisual}
-                  onChange={() => setIsVisual(!isVisual)}
-                />
-              </label>
+              <div className="flex space-x-4 items-center">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="viewMode"
+                    value="text"
+                    checked={viewMode === "text"}
+                    onChange={() => setViewMode("text")}
+                    className="radio radio-sm radio-primary"
+                  />
+                  <span className="text-sm text-blue-800 font-medium">Text View</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="viewMode"
+                    value="visual"
+                    checked={viewMode === "visual"}
+                    onChange={() => setViewMode("visual")}
+                    className="radio radio-sm radio-primary"
+                  />
+                  <span className="text-sm text-blue-800 font-medium">Visual View</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="viewMode"
+                    value="markmap"
+                    checked={viewMode === "markmap"}
+                    onChange={() => setViewMode("markmap")}
+                    className="radio radio-sm radio-primary"
+                  />
+                  <span className="text-sm text-blue-800 font-medium">Markmap View</span>
+                </label>
+              </div>
             </div>
             <div className="prose max-w-none text-blue-900">
-              {isVisual ? renderVisualRoadmap() : <ReactMarkdown>{data.roadmap}</ReactMarkdown>}
+              {viewMode === "text" && <ReactMarkdown>{data.roadmap}</ReactMarkdown>}
+              {viewMode === "visual" && renderVisualRoadmap()}
+              {viewMode === "markmap" && <MarkmapViewer markdown={convertToMarkdown(data.roadmap)} />}
             </div>
           </div>
         </div>
