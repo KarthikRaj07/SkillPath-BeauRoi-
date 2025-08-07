@@ -27,11 +27,11 @@ const MarkmapViewer = ({ markdown }) => {
   }, [markdown]);
 
   return (
-    <div className="w-full h-full bg-white rounded-lg shadow-lg p-4">
+    <div className="w-full h-full bg-white rounded-lg shadow-lg p-2">
       <svg 
         ref={svgRef} 
         className="w-full h-full"
-        style={{ minHeight: '400px' }}
+        style={{ minHeight: '600px' }}
       />
     </div>
   );
