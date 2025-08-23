@@ -39,8 +39,26 @@ function UserInput({ onSubmit }) {
       console.log('Submit response data:', submitData); // Debug log
       if (!submitRes.ok) throw new Error(submitData.error || 'Failed to save input');
       // 2. Generate roadmap
-      const prompt = `I am currently working as a ${currentJob}, and I have experience in ${skillsArr.join(", ")}. I aim to transition into a role as a ${requiredJob}. ${userPrompt}. Generate detailed roadmap to help me achieve this career goal by Skill development recommendations.`;
-      const chatRes = await fetch('http://localhost:5000/api/chat', {
+      const prompt = `
+      I am currently working as a ${currentJob}, and I have experience in ${skillsArr.join(", ")}. 
+      My goal is to transition into a role as a ${requiredJob}. ${userPrompt}. 
+      
+      Generate a dynamic skill development roadmap in Markdown format that adapts to the user's specific transition needs. Follow these rules:
+      
+      - Start with "# Career Transition Roadmap"
+      - Use "##" for major skill categories relevant to the target role
+      - Use "###" for specific skill areas within each category
+      - Use "-" for individual skills, tools, or learning steps
+      - Keep it concise and focused on the user's specific transition
+      - Structure should be: Title → Categories → Skill Areas → Individual Skills
+      - NO generic templates - customize based on the user's current skills and target role
+      
+      The roadmap should be personalized and show a clear learning path from their current position to their target role.
+      `;
+      
+      
+      
+            const chatRes = await fetch('http://localhost:5000/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

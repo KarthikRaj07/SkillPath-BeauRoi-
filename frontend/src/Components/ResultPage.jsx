@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import { jsPDF } from "jspdf";
 import MarkmapViewer from "../components/MarkmapViewer";
-import { convertToMarkdown } from "../utils/convertToMarkdown";
+
 
 
 function ResultPage({ data }) {
@@ -235,9 +235,9 @@ const renderVisualRoadmap = () => {
             </div>
           </div>
           <div className="">
-            {viewMode === "text" && <div className="prose max-w-none"><ReactMarkdown>{data.roadmap}</ReactMarkdown></div>}
+            {viewMode === "text" && <div className="prose max-w-none"><div className="whitespace-pre-wrap text-sm bg-gray-100 p-4 rounded-lg border">{data.roadmap.replace(/#{1,6}\s+/g, '').replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/`(.*?)`/g, '$1')}</div></div>}
             {viewMode === "visual" && renderVisualRoadmap()}
-            {viewMode === "markmap" && <div className="w-full"><MarkmapViewer markdown={convertToMarkdown(data.roadmap)} /></div>}
+            {viewMode === "markmap" && <div className="w-full"><MarkmapViewer markdown={data.roadmap} /></div>}
           </div>
         </div>
       </div>
